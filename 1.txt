@@ -1,0 +1,77 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using VB = Microsoft.VisualBasic;
+using ZXing;
+
+namespace CS190611
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+        int start, counter;
+        private void toolTip1_Draw(object sender, DrawToolTipEventArgs e)
+        {
+            //Disable Tooltip property (IsBalloon)
+            //OwnerDraw: true
+            e.DrawBackground();
+            e.DrawBorder();
+            e.DrawText();
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            start++;
+            DEMO.Text = DateTime.Now.ToString();
+            if (start > counter) timer1.Enabled = false;
+        }
+
+       
+
+        private void QRC_DoubleClick_1(object sender, EventArgs e)
+        {
+            try
+            {
+                ZXing.BarcodeWriter BW = new ZXing.BarcodeWriter
+                {
+                    Format = ZXing.BarcodeFormat.QR_CODE,
+                    Options = new ZXing.QrCode.QrCodeEncodingOptions
+                    {
+                        Height = vScrollBar1.Value,
+                        Width=vScrollBar1.Value,
+                        CharacterSet="UTF-8",
+                        ErrorCorrection=ZXing.QrCode.Internal.ErrorCorrectionLevel.H
+                    }
+
+                };
+                QRC.Image = BW.Write(DEMO.Text);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "提示訊息", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void DEMO_DoubleClick(object sender, EventArgs e)
+        {
+            if(int.TryParse(VB.Interaction.InputBox("輸入計時秒數"),out counter))
+            {
+                start++;
+                timer1.Enabled = true;
+                this.Text = DateTime.Now.ToString();
+
+            }
+        }
+
+       
+    }
+}

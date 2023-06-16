@@ -1,0 +1,153 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using VB = Microsoft.VisualBasic;
+using ZXing;
+//http://www.barcodelib.com/net_winforms/barcode_net_winforms_csharp.html
+using BarcodeLib.Barcode;
+
+namespace CS190618
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+        int start, counter;
+        private void toolTip1_Draw(object sender, DrawToolTipEventArgs e)
+        {
+            //Disable Tooltip property (IsBalloon)
+            //OwnerDraw: true
+            e.DrawBackground();
+            e.DrawBorder();
+            e.DrawText();
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            start++;
+            DEMO.Text = DateTime.Now.ToString();
+            if (start > counter) timer1.Enabled = false;
+        }
+
+       
+
+        private void QRC_DoubleClick_1(object sender, EventArgs e)
+        {
+            try
+            {
+                ZXing.BarcodeWriter BW = new ZXing.BarcodeWriter
+                {
+                    Format = ZXing.BarcodeFormat.QR_CODE,
+                    Options = new ZXing.QrCode.QrCodeEncodingOptions
+                    {
+                        Height = vScrollBar1.Value,
+                        Width=vScrollBar1.Value,
+                        CharacterSet="UTF-8",
+                        ErrorCorrection=ZXing.QrCode.Internal.ErrorCorrectionLevel.H
+                    }
+
+                };
+                QRC.Image = BW.Write(DEMO.Text);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "提示訊息", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                ColorDialog CD = new ColorDialog();
+                SaveFileDialog SFD = new SaveFileDialog();
+                BarcodeLib.Barcode.QRCode CQRC = new QRCode();
+                CQRC.ModuleSize = 5;
+                CQRC.LeftMargin = 5;
+                CQRC.RightMargin = 5;
+                CQRC.BottomMargin = 5;
+
+                CQRC.Encoding = QRCodeEncoding.Auto;
+                CQRC.ECL = QRCodeErrorCorrectionLevel.H;
+                CQRC.Data = DEMO.Text;
+
+                MessageBox.Show("請選擇背景顏色", "提示訊息", MessageBoxButtons.OK, MessageBoxIcon.Question);
+                if (CD.ShowDialog() == DialogResult.OK) CQRC.BackgroundColor = CD.Color;
+
+                MessageBox.Show("請選擇前景顏色", "提示訊息", MessageBoxButtons.OK, MessageBoxIcon.Question);
+                if (CD.ShowDialog() == DialogResult.OK) CQRC.ModuleColor = CD.Color;
+
+                //3.QRC Method
+                SFD.Filter = "PNG|*.png|Others|*.*";
+                if (SFD.ShowDialog() == DialogResult.OK)
+                {
+                    CQRC.drawBarcode(SFD.FileName);
+                    QRC.ImageLocation = SFD.FileName;
+                    System.Diagnostics.Process.Start(SFD.FileName);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "提示訊息", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+          //http://goqr.me/api/doc/create-qr-code/
+          //http://api.qrserver.com/v1/create-qr-code/?data=HelloWorld!&size=100x100
+          //http://api.qrserver.com/v1/create-qr-code/?data=HelloWorld!&size=300x300
+
+
+
+
+            try
+            {
+                string bg , fg;
+                ColorDialog CD = new ColorDialog();
+                MessageBox.Show("請選擇背景顏色", "提示訊息", MessageBoxButtons.OK, MessageBoxIcon.Question);
+                if (CD.ShowDialog() == DialogResult.OK)
+                {
+                    bg = CD.Color.R.ToString() + "-" + CD.Color.G.ToString() + "-" + CD.Color.B.ToString();
+                }
+
+                MessageBox.Show("請選擇前景顏色", "提示訊息", MessageBoxButtons.OK, MessageBoxIcon.Question);
+                if (CD.ShowDialog() == DialogResult.OK)
+                {
+                    fg = CD.Color.R.ToString() + "-" + CD.Color.G.ToString() + "-" + CD.Color.B.ToString();
+                }
+                else return;
+
+                string ps = VB.Interaction.InputBox("輸入Pixel Size", "QR-C畫素");
+
+                string URL = "http://api.qrserver.com/v1/create-qr-code/?data=" + DEMO.Text + "&ecc=H" + "&size=" + ps + "x" + ps + "&bgcolor=" + bg + "&color" + fg;
+                QRC.Load(URL);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "提示訊息", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void DEMO_DoubleClick(object sender, EventArgs e)
+        {
+            if(int.TryParse(VB.Interaction.InputBox("輸入計時秒數"),out counter))
+            {
+                start++;
+                timer1.Enabled = true;
+                this.Text = DateTime.Now.ToString();
+
+            }
+        }
+
+       
+    }
+}

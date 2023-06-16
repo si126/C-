@@ -1,0 +1,168 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using VB = Microsoft.VisualBasic;
+
+namespace CS190529
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+        Random RN = new Random() ;
+        private void 動態產生ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //1.Class --> Object
+            TextBox TB1 = new TextBox();
+            TextBox TB2 = new TextBox();
+            FontDialog FD = new FontDialog();
+
+            //2.Properties setting
+            TB1.Name = "TB1A";
+            TB1.Width = 150;
+            TB1.Top = RN.Next(200, 801);
+            TB1.Left = RN.Next(20, 701);
+            TB1.Text = "四資一甲";
+            TB1.TextAlign = HorizontalAlignment.Center;
+            TB1.BackColor = Color.Aquamarine;
+            if (FD.ShowDialog() == DialogResult.OK) TB1.Font = FD.Font;
+            else return;
+
+
+            TB2.Name = "TB1B";
+            TB2.Width = 250;
+            TB2.Height = 20;
+            TB2.Top = RN.Next(200, 801);
+            TB2.Left = RN.Next(20, 701);
+            TB2.Text = "四資一乙";
+            TB2.TextAlign = HorizontalAlignment.Center;
+            TB2.BackColor = Color.Aquamarine;
+            if (FD.ShowDialog() == DialogResult.OK) TB2.Font = FD.Font;
+            else return;
+
+            //3. Event Handler
+            TB1.Click += new EventHandler(OnChanged);
+            TB2.Click += new EventHandler(OnChanged);
+
+            //4.Add Controls
+            this.Controls.Add(TB1);
+            this.Controls.Add(TB2);
+            this.Text = "Number OF Controls :　" + this.Controls.Count;
+        }
+
+        private void 動態移除ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            bool HaveTV = true;
+
+            while (HaveTV)
+            {
+                HaveTV = false;
+
+                foreach (Control ctrl in this.Controls)
+                {
+                    if (ctrl.GetType() == typeof(TextBox))
+                    {
+                        this.Controls.Remove(ctrl);
+                        HaveTV = true;
+                    }
+                }
+            }
+            
+        }
+
+        private void OnChanged(object sender, EventArgs e)
+        {
+            if (((TextBox)sender).Name == "TB1B") ((TextBox)sender).Text = DateTime.Now.ToLongDateString ();
+            if (((TextBox)sender).Name == "TB1A") ((TextBox)sender).Text = DateTime.Now.ToLongTimeString ();
+
+
+        }
+
+        private void picToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            PictureBox PB = new PictureBox();
+            OpenFileDialog OFD = new OpenFileDialog();
+            OFD.Filter = "BMP|*.bmp|GIF|*.gif|JPG|*.jpg|ALL|*.*";
+
+            int sidelenght = RN.Next(100, 401);
+            PB .Width = sidelenght ;
+            PB .Height = sidelenght ;
+            PB.Top = RN.Next(150, 801);
+            PB.Left = RN.Next(10, 651);
+            this.Text = "影像邊長(Left,Top)" + sidelenght + "(" + PB.Left + "," + PB.Top + ")";
+            PB.SizeMode = PictureBoxSizeMode.StretchImage;
+
+            if (OFD.ShowDialog() == DialogResult.OK)
+            {
+                PB.ImageLocation = OFD.FileName;
+                this.Controls.Add(PB);
+
+            }
+            else return;
+
+
+        }
+
+        private void 移除所有物件ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            bool HaveTV = true;
+
+            while (HaveTV)
+            {
+                HaveTV = false;
+
+                foreach (Control ctrl in this.Controls)
+                {
+                    if (ctrl.GetType() != typeof(MenuStrip))
+                    {
+                        this.Controls.Remove(ctrl);
+                        HaveTV = true;
+                    }
+                }
+            }
+        }
+
+        private void buttonToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            int number;
+            // number = int.Parse(VB.Interaction .InputBox ("請輸入Button個數"));
+            if (!int.TryParse(VB.Interaction.InputBox("請輸入Button個數") , out int result))   
+            {
+                return;
+            }
+
+            for (int i = 1; i <= number; i++)
+            {
+
+                //1.Class --> Object
+                Button bn = new Button();
+
+                //2.Properties setting
+                bn.Width = RN.Next(50,250); 
+                bn .Height = RN.Next(30, 90);
+                bn.Top = RN.Next(20, 801);
+                bn .Left = RN.Next(20, 701);
+                bn.Font = new Font(Font.FontFamily, 30, FontStyle.Bold);
+                //3. Event Handler
+                bn.Click += new EventHandler(ButtonClick);
+                //4.Add Controls
+                this.Controls.Add(bn);
+                this.Text = "Number of Controls :" + this.Controls.Count;
+
+            }
+        }
+
+        private void ButtonClick(object sender, EventArgs e)
+        {
+            ((Button)sender).Text = VB.Interaction.InputBox("請輸入內容?");
+        }
+    }
+}
